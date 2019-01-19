@@ -52,7 +52,7 @@
 >**译者注**：在内存管理领域，我们一般用「堆」指代用于分配动态内存的虚拟地址空间，而用「栈」指代用于分配静态内存的虚拟地址空间。具体到虚拟内存布局（Memory Layout），堆维护在通过 `brk` 系统调用申请的「Heap」及通过 `mmap` 系统调用申请的「Memory Mapping Segment」中；而栈维护在通过汇编栈指令动态调整的「Stack」中。在 Glibc 里，堆用于分配较小的内存及主线程使用的内存。
 >
 > 下图为 Linux 内核 v2.6.7 之后，32 位模式下的虚拟内存布局方式。
-> ![这里写图片描述](http://img.blog.csdn.net/20160722093242640)
+> ![这里写图片描述](https://img-blog.csdn.net/20160722093242640)
 
 ## 2. 多线程支持
 
@@ -294,11 +294,11 @@ sploitfun@sploitfun-VirtualBox:~/ptmalloc.ppt/mthread$
 
 main arena 和 thread arena 的图示如下（单堆段）：
 
-![main arena和thread arena](http://img.blog.csdn.net/20160721184928041)
+![main arena和thread arena](https://img-blog.csdn.net/20160721184928041)
 
 thread arena 的图示如下（多堆段）：
 
-![thread arena](http://img.blog.csdn.net/20160721185023152)
+![thread arena](https://img-blog.csdn.net/20160721185023152)
 
 ## 4. Chunk
 
@@ -312,7 +312,7 @@ thread arena 的图示如下（多堆段）：
 ### 4.1. Allocated chunk
 
 「**Allocated chunck**」就是已经分配给用户的 chunk，其图示如下：
-![Allocated chunk](http://img.blog.csdn.net/20160721185357845)
+![Allocated chunk](https://img-blog.csdn.net/20160721185357845)
 
 图中左方三个箭头依次表示：
 
@@ -337,7 +337,7 @@ thread arena 的图示如下（多堆段）：
 
 「**Free chunck**」就是用户已释放的 chunk，其图示如下：
 
-![Free chunk](http://img.blog.csdn.net/20160721192333308)
+![Free chunk](https://img-blog.csdn.net/20160721192333308)
 
 图中结构体内部各字段的含义依次为：
 
@@ -382,7 +382,7 @@ thread arena 的图示如下（多堆段）：
 	- 计算 fast bin 索引以索引相应 bin；
 	- `free` 掉的 chunk 将被添加到上述 bin 的顶端。
 
-![fast bin snapshot](http://img.blog.csdn.net/20160721213038334)
+![fast bin snapshot](https://img-blog.csdn.net/20160721213038334)
 
 ### 5.2. Unsorted Bin
 
@@ -392,7 +392,7 @@ thread arena 的图示如下（多堆段）：
   - unsorted bin 包括一个用于保存 free chunk 的双向循环链表（又名 binlist）；
  - **chunk 大小**：无限制，任何大小的 chunk 均可添加到这里。
  
- ![unsorted，small and large bin snapshot](http://img.blog.csdn.net/20160721213935918)
+ ![unsorted，small and large bin snapshot](https://img-blog.csdn.net/20160721213935918)
 
 ### 5.3. Small Bin
 

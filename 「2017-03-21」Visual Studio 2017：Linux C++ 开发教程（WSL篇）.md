@@ -75,7 +75,7 @@ sudo apt-get install gcc g++ gdb gdbserver
 - 生成文件项目：
 	它的英文名叫做「Makefile Project」；
 	
-![新建跨平台项目](http://img.blog.csdn.net/20170321204404495?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvbWFva2Vsb25nOTU=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)
+![新建跨平台项目](https://img-blog.csdn.net/20170321204404495?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvbWFva2Vsb25nOTU=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)
  
 ### 2.3.2. 编码
 
@@ -122,12 +122,12 @@ int main() {
 1. 工具 - 选项 - Cross Platfrom - Connection Manager
 2. 在快速启动窗口（Ctrl + Q），输入 Connect，然后在自动补全窗口点选
 
-![录入 SSH](http://img.blog.csdn.net/20170321210726943?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvbWFva2Vsb25nOTU=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)
+![录入 SSH](https://img-blog.csdn.net/20170321210726943?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvbWFva2Vsb25nOTU=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)
  
 ### 2.3.4. 调试程序
 
 在添加断点/运行程序之后，你的程序理应驻留在断点位置，并且你可以通过 **测试-Linux Console** 打开终端，同程序进行交互。终端见右下角黄色标题框部分。
-![调试程序](http://img.blog.csdn.net/20170321211000523?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvbWFva2Vsb25nOTU=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)
+![调试程序](https://img-blog.csdn.net/20170321211000523?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvbWFva2Vsb25nOTU=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)
 
 ### 2.3.5. 为代码补全添加对 Linux 库函数的支持
 
@@ -139,7 +139,7 @@ int main() {
 
 解决方案 - 项目名 - （右键） - 属性 - 配置属性 - VC++目录 - 常规 - 包含目录 - （单击） - （下箭头） - 编辑
  
-![目录](http://img.blog.csdn.net/20170321211732144?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvbWFva2Vsb25nOTU=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)
+![目录](https://img-blog.csdn.net/20170321211732144?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvbWFva2Vsb25nOTU=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)
 
 找到 Linux 头文件所在目录。我的目录是这样的：
 ```
