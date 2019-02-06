@@ -1,4 +1,5 @@
 
+
 # Memory Models Series - Memory Consistency (Slides & Talk)
 
 > **日志**：
@@ -15,8 +16,7 @@
 
 ---
 
-[toc]
-
+@[toc]
 ## 1. 简介
 
 ![1](https://img-blog.csdnimg.cn/20190203001605843.PNG?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L21hb2tlbG9uZzk1,size_16,color_FFFFFF,t_70)
@@ -126,11 +126,11 @@
 
 `r2 == 0`，说明 M1 未执行而 M3 已执行。根据前述「M1->M2」，M2 必然也未执行。于是 M3 中只能读出 M2 生效前的 y 值，也即 0。所以 `r2 == 0 && r1 == 1` 是不可能的。
 
-![15](https://img-blog.csdnimg.cn/20190203002049181.PNG?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L21hb2tlbG9uZzk1,size_16,color_FFFFFF,t_70)
+![15](https://img-blog.csdnimg.cn/20190206110047957.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L21hb2tlbG9uZzk1,size_16,color_FFFFFF,t_70)
 
 本例介绍了在原子性一项上，不能提前读取到别的核心/处理器的写。这句话看起来可能会让你一头雾水，实际上这样理解就可以了：某个核心/处理器修改了变量 x 之后，别的处理器要么都看到这个修改，要么都没看到这个修改，不能说其中某个瞒着别人偷偷看到了。其直接影响为：M3 和 M5 须同时看见 M1 或 M2。
 
-[x] R->R 约束着 M3->M4，于是若 `r1 == 1 && r2 == 2`，则说明 P2 先后看见 M1 和 M2。P3 亦然。[x] R->R 也约束着 M5->M6，则 r1 和 r2 必然先后输出 0、1、2 中的任一或任意先后两个。而 `r1 == 2 && r1 == 1` 不在其列，是不可能的。
+[x] R->R 约束着 M3->M4，于是若 `r1 == 1 && r2 == 2`，则说明 P2 眼中 M1->M2。P3 亦然。[x] R->R 也约束着 M5->M6，则 r3 和 r4 必然先后输出 0、1、2 中的任一或任意先后两个。而 `r3 == 2 && r4 == 1` 不在其列，是不可能的。
 
 > **建议你了解的内容**：Intel 在《手册》[^1]中介绍本例时，采用的是这样的描述：「**Total order on stores** to the same location」，也即：所有处理器眼中，针对同一位置的写操作其顺序应当是一样的。比如各处理器都会对 x 写，其中某个处理器观测到这样的写顺序：1->2->3->4->5，各处理器一定也会看到这样的顺序，虽然是在 1 还是 2 还是别的时候看到可能是随缘的事情。
 
