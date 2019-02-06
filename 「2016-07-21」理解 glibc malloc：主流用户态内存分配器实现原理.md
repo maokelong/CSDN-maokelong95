@@ -1,32 +1,32 @@
 # Understanding glibc malloc
 
-> **修订日志**：
+> **日志**：
 >
-> 1. 2017-03-17 优化排版；
-> 1. 2018-05-22 内容优化与排版优化；
+> 1. [2019-02-06] 勘误与代码着色优化；
+> 1. [2018-05-22] 内容优化与排版优化；
+> 1. [2017-03-17] 优化排版.
 
 ---
 
 > **译者言**: 
 >
-> 1. 2016-07-21
->   本篇文章主要完成了「[Understanding glibc malloc](https://sploitfun.wordpress.com/2015/02/10/understanding-glibc-malloc/comment-page-1/?blogsub=confirming#subscribe-blog%E3%80%82)」的翻译工作。限于本人翻译水平与专业技术水平（纯粹为了了解内存分配而翻），本文章必定会有很多不足之处，请大家见谅，也欢迎大家的指正！
-> 1. 2018-05-22
->   在写完这篇博客之后，我抽空将 glibc malloc 的源码阅读了一遍，并参与编撰了一篇有关分配器的综述文献[^mywork]，最后我动手实现了自己的分配器。当然，这都是 17 年暑期之前的工作了。一年后的今天，我打开这篇藏在记忆角落里的文章，看着它惊人的点击量，我觉得我有必要认真地校准一下本文，从而尽量为大家提供一篇内容正确、阅读舒适的博文，这样才对得起大家的厚望。在修订过程中，为了避免令人尴尬的翻译腔，我会尽量意译与技术无关的文本，希望大家喜欢！
+> 1. [2018-05-22] 在写完这篇博客之后，我抽空将 glibc malloc 的源码阅读了一遍，并参与编撰了一篇有关分配器的综述文献[^mywork]，最后我动手实现了自己的分配器。当然，这都是 17 年暑期之前的工作了。一年后的今天，我打开这篇藏在记忆角落里的文章，看着它惊人的点击量，我觉得我有必要认真地校准一下本文，从而尽量为大家提供一篇内容正确、阅读舒适的博文，这样才对得起大家的厚望。在修订过程中，为了避免令人尴尬的翻译腔，我会尽量意译与技术无关的文本，希望大家喜欢！
+> 1. [2016-07-21] 本篇文章主要完成了「[Understanding glibc malloc](https://sploitfun.wordpress.com/2015/02/10/understanding-glibc-malloc/comment-page-1/?blogsub=confirming#subscribe-blog%E3%80%82)」的翻译工作。限于本人翻译水平与专业技术水平（纯粹为了了解内存分配而翻），本文章必定会有很多不足之处，请大家见谅，也欢迎大家的指正！
 
 [^mywork]:刘翔,童薇,刘景宁,冯丹,陈劲龙.动态内存分配器研究综述[J].计算机学报,2018,41(10):2359-2378.
 
 ---
 
 [toc]
+
 ## 前言
 
 堆内存（Heap Memory）是一个很有意思的领域。你可能和我一样，也困惑于下述问题很久了：
 
-> 如何从内核申请堆内存？
-> 谁管理它？内核、库函数，还是应用本身？
-> 内存管理效率怎么这么高？！
-> 堆内存的管理效率可以进一步提高吗？
+- 如何从内核申请堆内存？
+- 谁管理它？内核、库函数，还是应用本身？
+- 内存管理效率怎么这么高？！
+- 堆内存的管理效率可以进一步提高吗？
 
 最近，我终于有时间去深入了解这些问题。下面就让我来谈谈我的调研成果。
 
@@ -49,7 +49,7 @@
 
 我在[之前的文章](https://sploitfun.wordpress.com/2015/02/11/syscalls-used-by-malloc/)中提到过，`malloc` 内部通过 [`brk`](http://man7.org/linux/man-pages/man2/sbrk.2.html) 或 [`mmap`](http://man7.org/linux/man-pages/man2/mmap.2.html) 系统调用向内核申请堆区。
 
->**译者注**：在内存管理领域，我们一般用「堆」指代用于分配动态内存的虚拟地址空间，而用「栈」指代用于分配静态内存的虚拟地址空间。具体到虚拟内存布局（Memory Layout），堆维护在通过 `brk` 系统调用申请的「Heap」及通过 `mmap` 系统调用申请的「Memory Mapping Segment」中；而栈维护在通过汇编栈指令动态调整的「Stack」中。在 Glibc 里，堆用于分配较小的内存及主线程使用的内存。
+>**译者注**：在内存管理领域，我们一般用「堆」指代用于分配动态内存的虚拟地址空间，而用「栈」指代用于分配静态内存的虚拟地址空间。具体到虚拟内存布局（Memory Layout），堆维护在通过 `brk` 系统调用申请的「Heap」及通过 `mmap` 系统调用申请的「Memory Mapping Segment」中；而栈维护在通过汇编栈指令动态调整的「Stack」中。在 Glibc 里，「Heap」用于分配较小的内存及主线程使用的内存。
 >
 > 下图为 Linux 内核 v2.6.7 之后，32 位模式下的虚拟内存布局方式。
 > ![这里写图片描述](https://img-blog.csdn.net/20160722093242640)
@@ -64,7 +64,7 @@ Linux 的早期版本采用 dlmalloc 作为它的默认分配器，但是因为 
 
 ### 2.1. 案例代码
 
-```C
+```c
 /* Per thread arena example. */
 #include <stdio.h>
 #include <stdlib.h>
@@ -119,7 +119,7 @@ int main() {
 
 从如下的输出结果中我们可以看到，这里还**没有**堆段**也没有**每个线程的栈，因为 thread1 还没有创建！
 
-```bash
+```text
 sploitfun@sploitfun-VirtualBox:~/ptmalloc.ppt/mthread$ ./mthread 
 Welcome to per thread arena example::6501
 Before malloc in main thread
@@ -139,7 +139,7 @@ sploitfun@sploitfun-VirtualBox:~/ptmalloc.ppt/mthread$
 
 >**注意**：top chunk 是一个 arena 位于最顶层的 chunk。有关 top chunk 的更多信息详见后续章节「top chunk」部分。
 
-```bash
+```text
 sploitfun@sploitfun-VirtualBox:~/ptmalloc.ppt/mthread$ ./mthread 
 Welcome to per thread arena example::6501
 Before malloc in main thread
@@ -159,7 +159,7 @@ sploitfun@sploitfun-VirtualBox:~/ptmalloc.ppt/mthread$
 
 从如下的输出结果中我们可以看到，当分配的内存区域 `free` 掉时，其并不会立即归还给操作系统，而仅仅是移交给了作为库函数的分配器。这块 `free` 掉的内存添加在了「main arenas bin」中（在 glibc malloc 中，空闲列表数据结构被称为「**bin**」）。随后当用户请求内存时，分配器就不再向内核申请新堆了，而是先试着各个「bin」中查找空闲内存。只有当 bin 中不存在空闲内存时，分配器才会继续向内核申请内存。
 
-```bash
+```text
 sploitfun@sploitfun-VirtualBox:~/ptmalloc.ppt/mthread$ ./mthread 
 Welcome to per thread arena example::6501
 Before malloc in main thread
@@ -180,7 +180,7 @@ sploitfun@sploitfun-VirtualBox:~/ptmalloc.ppt/mthread$
 
 从如下的输出结果中我们可以看到，此时 thread1 的堆尚不存在，但其栈已产生。
 
-```bash
+```text
 sploitfun@sploitfun-VirtualBox:~/ptmalloc.ppt/mthread$ ./mthread 
 Welcome to per thread arena example::6501
 Before malloc in main thread
@@ -205,7 +205,7 @@ sploitfun@sploitfun-VirtualBox:~/ptmalloc.ppt/mthread$
 
 >**注意**：当用户请求超过 128KB(比如 `malloc(132*1024)`) 大小并且此时 arena 中没有足够的空间来满足用户的请求时，内存将通过 `mmap` 系统调用（不再是 `sbrk`）分配，而不论请求是发自 main arena 还是 thread arena。
 
-```bash
+```text
 ploitfun@sploitfun-VirtualBox:~/ptmalloc.ppt/mthread$ ./mthread 
 Welcome to per thread arena example::6501
 Before malloc in main thread
@@ -231,7 +231,7 @@ sploitfun@sploitfun-VirtualBox:~/ptmalloc.ppt/mthread$
 
 从如下的输出结果中我们可以看到，`free` 不会把内存归还给操作系统，而是移交给分配器，然后添加在了「thread arenas bin」中。
 
-```bash
+```text
 sploitfun@sploitfun-VirtualBox:~/ptmalloc.ppt/mthread$ ./mthread 
 Welcome to per thread arena example::6501
 Before malloc in main thread
