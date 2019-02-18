@@ -1,0 +1,50 @@
+= CSDN-maokelong95
+maokelong <maoeklong@qq.com>
+:toc:
+:toclevels: 4
+:sectnums:
+:sectnumlevels: 3
+:tip-caption: :bulb:
+
+我的 CSDN 博客所有博文。如需转载，请注明出处。
+
+== 荣誉墙
+
+在搜索引擎返回的结果中排名靠前即为最大的荣誉！
+
+[TIP]
+为避免浏览历史的污染，以下所有搜索结果均在 Chrome 隐身模式下得到。检索日期及所用关键词见图片标题。
+
+.2019/02/18 gem5+eclipse
+image::https://github.com/maokelong/CSDN-maokelong95/blob/master/%E8%8D%A3%E8%AA%89%E5%A2%99/gem5%2Beclipse.png[gem5+eclipse]
+
+.2019/02/18 clflush+clflushopt
+image::https://github.com/maokelong/CSDN-maokelong95/blob/master/%E8%8D%A3%E8%AA%89%E5%A2%99/%E6%8C%81%E4%B9%85%E5%8C%96%E6%8C%87%E4%BB%A4.png[clflush+clflushopt]
+
+.2019/02/18 内存持久性
+image::https://github.com/maokelong/CSDN-maokelong95/blob/master/%E8%8D%A3%E8%AA%89%E5%A2%99/%E5%86%85%E5%AD%98%E6%8C%81%E4%B9%85%E6%80%A7.png[内存持久性]
+
+.2019/02/18 内存一致性
+image::https://github.com/maokelong/CSDN-maokelong95/blob/master/%E8%8D%A3%E8%AA%89%E5%A2%99/%E5%86%85%E5%AD%98%E4%B8%80%E8%87%B4%E6%80%A7.png[内存一致性]
+
+.2019/02/18 intel+pintools
+image::https://github.com/maokelong/CSDN-maokelong95/blob/master/%E8%8D%A3%E8%AA%89%E5%A2%99/intel%20pintools.png[intel+pintools]
+
+.2019/02/18 shared+makefile
+image::https://github.com/maokelong/CSDN-maokelong95/blob/master/%E8%8D%A3%E8%AA%89%E5%A2%99/shared%2Bmakefile.png[shared+makefile]
+
+.2019/02/18 vs+wsl
+image::https://github.com/maokelong/CSDN-maokelong95/blob/master/%E8%8D%A3%E8%AA%89%E5%A2%99/vs%2Bwsl.png[vs+wsl]
+
+.2019/02/18 vscode+snippet
+image::https://github.com/maokelong/CSDN-maokelong95/blob/master/%E8%8D%A3%E8%AA%89%E5%A2%99/vscode%2Bsnippet.png[vscode+snippet]
+
+.2019/02/18 arena+bin
+image::https://github.com/maokelong/CSDN-maokelong95/blob/master/%E8%8D%A3%E8%AA%89%E5%A2%99/arena%2Bbin.png[arena+binarena+bin]
+
+.2019/02/18 glibc+malloc
+image::https://github.com/maokelong/CSDN-maokelong95/blob/master/%E8%8D%A3%E8%AA%89%E5%A2%99/glibc%20malloc.png[glibc+malloc]
+
+== 关于
+
+所有标记为「原」的文章均为原创，所有标记为「译」的文章均为翻译。如需转载，注明出处及作者（猫科龙<maokelong@qq.com>）即可。如若建议、勘误等，发起 Issue 或在博文下方评论均可。
