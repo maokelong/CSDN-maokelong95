@@ -223,9 +223,9 @@ Body 部分可以使用特殊语法结构，来控制光标和要插入的文本
     
 其中最复杂的模式为：`${1:${TM_FILENAME/(.*)\\.C$/${1:/upcase}_H/i}}`，我们将之拆解为如下五部分：
  1. `${1:...}`：嵌套的 `placeholder`；
- 1. `${TM_FILENAM/.../.../.}`：「variable transformations」中的「var_name」，表示带后缀的文件名；
+ 1. `${TM_FILENAME/.../.../.}`：「variable transformations」中的「var_name」，表示带后缀的文件名；
  1. `${.../(.*)\\.C$/.../.}`：「variable transformations」中的「regular_expression」，表示匹配任意以「.C」为后缀的字符串；
- 1. `${.../.../${1:/upcase}_H/.}}`：「variable transformations」中的「options」，表示将第一个捕捉项替换为大写的，并添加「_H」的后缀；
+ 1. `${.../.../${1:/upcase}_H/.}}`：「variable transformations」中的「format_string」，表示将第一个捕捉项替换为大写的，并添加「_H」的后缀；
  1. `${.../.../.../i}`：「variable transformations」中的「options」，表示无视大小写。
     
 
@@ -296,7 +296,7 @@ text        ::= .*
 
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/20190119210632163.jpg?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L21hb2tlbG9uZzk1,size_16,color_FFFFFF,t_70)
 
-## 5. 一些建议
+## 6. 一些建议
 
 默认情况下 snippet 在 IntelliSense 中的显示优先级并不高，而且在 IntelliSense 中选择相应 snippet 需要按「enter」键，这对于手指短的人来说并不是什么很好的体验。
 
