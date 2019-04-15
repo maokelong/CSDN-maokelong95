@@ -2,8 +2,9 @@
 
 > 日志：
 > 
-> - 2019-01-12  更新指令支持现状；
-> - 2018-08-02：提交了第一版；
+> - 2019-04-15: 新增指令顺序约束表；
+> - 2019-01-12: 更新指令支持现状；
+> - 2018-08-02: 提交了第一版；
 
 [toc]
 
@@ -65,6 +66,7 @@
   你的处理器架构不支持该指令。
 
 ## 3. 常用非易失内存编程指令介绍
+
 > **Note**: 
 > * 支持现状的格式为 Processor Generation Introduction. (Supported in Microarchitecture)；数据获取自 Intel® Architecture Instruction Set Extensions and Future Features Programming Reference。
 > * TBD = To Be Discussed，未固定。
@@ -84,3 +86,27 @@
 7. **FENCE**。FENCE 指令，也称内存屏障（Memory Barrier），起着约束其前后访存指令之间相对顺序的作用。其包括 LFENCE（约束 Load 指令）, MFENCE（约束 L/S 指令）, SFENCE（约束 Store 指令）。希望从更深层次去理解这个指令的意义，可以翻翻我之前的博客：[内存模型系列（上）- 内存一致性模型（Memory Consistency）](https://blog.csdn.net/maokelong95/article/details/80727952)，其对应 Safety Net 部分。
 
 > 注：以上指令均为 X86 指令，arm 处理器的指令集我未调研过，因此此处不作介绍。
+
+## 3. 常用非易失内存编程指令顺序约束表 
+
+我们知道，Out-of-Order 处理器可能会乱序执行指令以尽可能增大地处理器的指令吞吐率。但这种 Re-order 可能并不是我们所期望的。我们唯有充分了解这些非易失编程指令的顺序约束，才能做到完全把控处理器的访存行为。
+
+为了清晰地将指令间的顺序约束表现出来，这里草拟了一张介绍指令顺序约束的表格。其中每行表示一个是否与之排序的项目，而每列表示一条非易失编程指令。
+
+| 序项\指令  | CLFLUSH | CLFLUSHOPT | CLWB | MOVNT[^1] |
+| ---------- | ------- | ---------- | ---- | ----- |
+| CLFLUSH    | Y       | N          | N    | ?     |
+| CLFLUSHOPT | N       | N          | N    | ?     |
+| CLWB       | ?       | ?          | N    | ?     |
+| MOVNT      | ?       | ?          | ?    | N     |
+| writes     | Y       | N          | N    | N     |
+| Locked RMW | Y       | Y          | Y    | Y     |
+| fence      | Y       | Y          | Y    | Y     |
+
+> **注意**：
+> 1. **对同一 cacheline 操作时仍将排序**，但 MOVNT 未见相关描述；
+> 1. **?** 部分表示已有资料中未见相关描述；
+> 1. 上面的 fence 指的是 **store-fencing operations**，包括 SFENCE 及 MFENCE；
+> 1. 上面的 Locked RMW 包括 XCHG 及 LOCK-prefixed instructions，详见 [内存模型系列（上）- 内存一致性模型（Memory Consistency）](https://blog.csdn.net/maokelong95/article/details/80727952)。
+
+[^1]: Intel® 64 and IA-32 Architectures Optimization Reference Manual. 7.4.1 The Non-temporal Store Instructions.
