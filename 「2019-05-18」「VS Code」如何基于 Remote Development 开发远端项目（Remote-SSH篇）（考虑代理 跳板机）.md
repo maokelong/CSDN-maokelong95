@@ -1,5 +1,3 @@
-
-
 # 「VS Code」 Remote Development using SSH (with a jump server to go through)
 
 > **日志**：
@@ -130,7 +128,7 @@ VSC 通过 Remote Development 插件连接上远程服务器，然后打开服�
       # 这里填入远程主机 ssh 端口
       Port 22
       # 这里填你私钥的路径
-      IdentityFile c:\User\mkl\.ssh\id_rsa
+      IdentityFile c:\Users\mkl\.ssh\id_rsa
       # 当需要跳板机的时候就要填这个了
       # 这里代理类型根据需求填 socks4、socks5 或 http
       # 这里 xxx.xxx.xxx.xxx:xxx 表示跳板机 IP:端口
@@ -146,6 +144,8 @@ VSC 通过 Remote Development 插件连接上远程服务器，然后打开服�
 ## S4. Enjoy Yourself
 
 Happy coding!
+
+注意！如果你通过跳板机连接的远程机器，那么在成功连接后 VSC 可能会启动一个名称包含「ncat.exe」的 **纯黑框**。这可能是一个 BUG，和 VSC 无法在内置终端中运行这个命令有关。我们该怎么把它消除呢？在设置里开启「remote.SSH.showLoginTerminal」设置就好了。
 
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/20190518224106952.PNG?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L21hb2tlbG9uZzk1,size_16,color_FFFFFF,t_70)
 
