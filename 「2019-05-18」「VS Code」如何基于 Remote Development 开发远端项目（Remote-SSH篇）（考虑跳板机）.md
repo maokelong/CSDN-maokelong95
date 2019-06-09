@@ -2,9 +2,19 @@
 
 > **日志**：
 >
+> 1. 「2019-06-07」自 v1.35 起，VSC 稳定版中能够使用 Remote Development (Preview) 插件了；
 > 1. 「2019-05-19」提交了全文初版。
 
-@[toc]
+----
+
+> **作者按**：近期，Visual Studio Code 中提供了一个很有趣的插件：Remote Development 。使用这个插件之后，我们就可以直接使用 VSC 开发部署在远程机器、容器甚至 WSL 上的项目，并充分享受 VSC 的强大特性，使得我们可以摆脱传统的 XManager 套件。然而在使用这个插件的时候，可能会面临需要经过跳板机的场景，那么在这种情况下，我们该怎么成功使用 Remote Development 呢？
+>
+> - 本博客已经发布了大量优质教程，其中包括阅读量超过五万的 [《[VS Code]跟我一起在Visual Studio Code 添加自定义snippet（代码段），附详细配置》](https://blog.csdn.net/maokelong95/article/details/54379046)。
+>
+> - 本博客所有文本及胶片均公开在了 [Github](https://github.com/maokelong/CSDN-maokelong95) 上，如需转载，注明出处即可。如若建议、勘误等，发起 Issue 或在下方评论均可。
+
+[toc]
+
 ## 简介
 
 2019 年 05 月 02 日，Visual Studio Code（以下简称 VSC）公布了 Remote Development 插件的预览版（[公告传送门](https://code.visualstudio.com/blogs/2019/05/02/remote-development)）。只要下载 VSC v1.34 insider（[日志传送门](https://code.visualstudio.com/updates/v1_34)），也即四月份发布的内测版，就可以使用这个插件了。
@@ -32,7 +42,7 @@ VSC 通过 Remote Development 插件连接上远程服务器，然后打开服�
 1. 安装适用于 Windows 10 的 OpenSSH，这里给出两种方案：
    * （推荐）使用 PowerShell 安装 OpenSSH：
       * 按下 win 键，输入 powershell，右键选择「以**管理员**身份打开」，分别输入：
-        * `Add-WindowsCapability -Online -Name OpenSSH.Client~~~~0.0.1.0`
+        * ` Get-WindowsCapability -Online | ? Name -like 'OpenSSH*'`
           
           这是为了检查 OpenSSH 客户端及服务端是否安装，当均为安装时应打印：
           ```
@@ -57,7 +67,7 @@ VSC 通过 Remote Development 插件连接上远程服务器，然后打开服�
       * 按下 win 键，点选设置，点选应用，点选管理可选功能，点选添加功能，点选 OpenSSH 客户端。
       
         ![在这里插入图片描述](https://img-blog.csdnimg.cn/20190518224011891.PNG?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L21hb2tlbG9uZzk1,size_16,color_FFFFFF,t_70)
-1. 安装 Visual Studio Code Insiders（[传送门](https://code.visualstudio.com/insiders/)）；
+1. 安装 Visual Studio Code （[传送门](https://code.visualstudio.com/docs/?dv=win)）；
 1. 在插件市场中检索并安装 `Remote SSH`；
   
    > **注意**：安装 `Remote Development` 会自动安装 Remote - Container, Remote - SSH 及 Remote - WSL 全家桶。这里我们只需要 Remote-SSH。
@@ -97,7 +107,7 @@ VSC 通过 Remote Development 插件连接上远程服务器，然后打开服�
       > **注意:** 在传输文件的时候 XFtp 或 lrzsz 都是不错的选择，这里以 lrzsz 为例：在 XShell 中依次输入：
       > ```shell
       > sudo apt install lrzsz                        # 安装 lrzsz
-      > rz                                            # 调用资管管理器，自行上传公钥
+      > rz                                            # 调用资管管理器，自行上传公钥（c/用户/用户名/.ssh/.id_rsa.pub）
       > mkdir -p ~/.ssh                               # 创建目录 ~/.ssh
       > chmod 700 ~/.ssh                              # 修改目录权限
       > cat id_rsa.pub >> ~/.ssh/authorized_keys      # 将公钥拷贝到  ~/.ssh 并命名为 authorized_keys
@@ -106,6 +116,8 @@ VSC 通过 Remote Development 插件连接上远程服务器，然后打开服�
       > ```
 
 > **注意**：当有多台本地机器都要连接远程机器怎么办？只用将本地机器的公钥 append 到 authorized_keys 中就行。
+
+> **注意**：当远程机器重置了，比如重新安装系统，需要将 `%USERPROFILE%\.ssh\` 中的 `known_hosts` 删除，以重建连接。 
 
 ## S3. 开始远程连接
 
