@@ -227,7 +227,6 @@ AsciiDoc 作为 LaTeX 及 Markdown 之间的一种文本标记语言，不似 La
 VSCode 能替换成 XFtp 的默认编辑器，使得能基于 VSCode 强大的特性去编辑云端上的单个文件。文件一经保存即自动同步到云端上。设置方法很简单，**工具 → 选项 → 高级** 中，你很快就能找到相关选项。
 
 ### 直接开发云端项目
+![24](https://img-blog.csdnimg.cn/20190613102111240.jpg?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L21hb2tlbG9uZzk1,size_16,color_FFFFFF,t_70)
 
-![24](https://img-blog.csdnimg.cn/20190526161711496.PNG?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L21hb2tlbG9uZzk1,size_16,color_FFFFFF,t_70)
-
-最后谈一下 VSCode 于 2019-05-02 发布的最新特性，Remote Development。通过 Remote Development 插件连接上云端，然后打开云端上的文件夹作为 workspace。作为结果，你无需将云端上的各种头文件和源码拷贝到本地上，就能使用包括 IntelliSense (completions)、code navigation 及 debugging 在内的各种功能。最后，我们还能使用编辑器内置的终端操纵云端，去做一些 build、release 这样的事情。笔者专门为此写了一篇图文并茂的教程，帮助你在最短时间内上手该插件。（传送门：[「VS Code」如何基于 Remote Development 开发远端项目（Remote-SSH篇）（考虑代理 / 跳板机）](https://blog.csdn.net/maokelong95/article/details/90321794)）
+最后谈一下 VSCode 于 2019-05-02 发布的最新特性，Remote Development。通过 Remote Development 插件连接上云端，然后打开云端上的文件夹作为 workspace。作为结果，你无需将云端上的各种头文件和源码拷贝到本地上，就能使用包括 IntelliSense (completions)、code navigation 及 debugging 在内的各种功能。最后，我们还能使用编辑器内置的终端操纵云端，去做一些 build、release 这样的事情。笔者专门为此写了一篇图文并茂的教程，帮助你在最短时间内上手该插件。（传送门：[「VS Code」如何在 Visual Studio Code 中通过跳板机连接远程服务器：Remote-SSH 篇](https://blog.csdn.net/maokelong95/article/details/91801944)）

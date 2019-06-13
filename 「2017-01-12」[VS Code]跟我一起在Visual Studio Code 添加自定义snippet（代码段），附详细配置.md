@@ -8,6 +8,10 @@
 > 1. 2018.05.13 VSCode 自 v1.20 起，开始支持更多变量，其用于读取剪贴板内容及插入当前日期。本次更新即旨于介绍这些新变量。此外，本次更新还移除了一些废话，并对排版进行了微调；
 > 1. 2017.10.11 VSCode 自 v1.17 起，其代码片引擎开始支持变量转换（variable transformations）特性，变量的值可以经过格式化处理后，再插入预定的位置。这是一个很强大的特性；自 v1.15 起，开始支持 Choice 了。本次更新即旨于介绍这些新特性。
 
+> **推广**：
+> * [「VS Code」Visual Studio Code 菜鸟教程：从入门到精通](https://blog.csdn.net/maokelong95/article/details/88805589)。你能找到的最好的 VSC 教程。
+> * [「VS Code」如何在 Visual Studio Code 中通过跳板机连接远程服务器：Remote-SSH 篇](https://blog.csdn.net/maokelong95/article/details/91801944)。你能找到的最好的 VSC  SSH 教程。
+
 ---
 
 > **前记**：今天试着用了下 Atom，发现 Atom 居然预装了 CLANG 的 snippets，而且远比 VSCode 的已有拓展「C/C++ Snippets」中的丰富！身为 VSCode 的死忠粉，我决定立马把 Atom 的 C snippets 搬到 VSCode 上来。

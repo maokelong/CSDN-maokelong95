@@ -1,3 +1,4 @@
+
 # 「VS Code」 Remote Development using SSH (with a jump server to go through)
 
 > **日志**：
@@ -13,8 +14,7 @@
 >
 > - 本博客所有文本及胶片均公开在了 [Github](https://github.com/maokelong/CSDN-maokelong95) 上，如需转载，注明出处即可。如若建议、勘误等，发起 Issue 或在下方评论均可。
 
-[toc]
-
+@[toc]
 ## 简介
 
 2019 年 05 月 02 日，Visual Studio Code（以下简称 VSC）公布了 Remote Development 插件的预览版（[公告传送门](https://code.visualstudio.com/blogs/2019/05/02/remote-development)）。只要下载 VSC v1.34 insider（[日志传送门](https://code.visualstudio.com/updates/v1_34)），也即四月份发布的内测版，就可以使用这个插件了。
