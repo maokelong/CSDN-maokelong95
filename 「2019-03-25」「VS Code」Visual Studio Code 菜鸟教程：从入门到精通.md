@@ -2,6 +2,7 @@
 
 > **日志**：
 >
+> 1. 「2019-09-06」更新了选择默认终端的方法；在胶片中补全列选方式；
 > 1. 「2019-05-26」补全了全文的剩余部分，并引入了对 Remote Development 插件的介绍；
 > 1. 「2019-03-25」提交了本文的 PPT 框架。
 
@@ -95,9 +96,7 @@ VSCode 首先是一个代码编辑器。因此介绍 VSCode 的时候自然应�
 > 若要阻止代码感知引擎切换到「上下文无关」的模式，修改扩展的设置即可。如 PPT 所示，你只需在设置中关闭 `C_Cpp: Intelli Sense Engine Fallback` 即可。修改设置的方法见后文。
 
 ### 列选、检索与替换
-
-![10](https://img-blog.csdnimg.cn/20190325181603438.PNG?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L21hb2tlbG9uZzk1,size_16,color_FFFFFF,t_70)
-
+![10](https://img-blog.csdnimg.cn/20190906110317362.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L21hb2tlbG9uZzk1,size_16,color_FFFFFF,t_70)
 提到现代文本编辑器，怎么能不提到列选呢？列选是为了解决多行编辑的问题。列选的方式的打开方式有多种：
 
 - 鼠标中键框选：摁住鼠标左键画矩形，矩形相交及包含的字符均被选中；
@@ -136,14 +135,16 @@ VSCode 首先是一个代码编辑器。因此介绍 VSCode 的时候自然应�
 但快捷键不是使用这个特性的主要难点，主要难点在于环境的搭建。PPT 中以较为简单的 Python 为例，我已经预先配置好了 Python 的环境变量，并在一个 python 文件的第二行加了断点。断点的添加方式十分简单，和大多数 IDE 相似地，在行号左边的空列点一下就好了。运行之后所有变量都被打印了出来，并且提供了控制调试进度的浮窗。
 
 ### 终端
-
-![13](https://img-blog.csdnimg.cn/20190325181630878.PNG?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L21hb2tlbG9uZzk1,size_16,color_FFFFFF,t_70)
+![13](https://img-blog.csdnimg.cn/20190906110249866.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L21hb2tlbG9uZzk1,size_16,color_FFFFFF,t_70)
 
 终于！终于到终端了！在我心里，终端完全是化腐朽为神奇的东西！恩，腐朽的是 WSL。单独的 WSL（Windows Subsystem for Linux）似乎并没有什么存在的必要（但是还是可以用 VS2017 + WSL 调试 Linux 代码，[传送门](https://blog.csdn.net/maokelong95/article/details/64523303)），如有可能，我更愿意选择 xshell。毕竟每次光 `cd /mnt/d/xxx` 进入当前目录就能阻止我打开 WSL 了。但 VSCode 的终端可以配置成 WSL 后事情变得有些不一样了。
 
 举一个很简单的例子，我在 VSCode 里唤起终端（配制成 WSL 了），编译并运行当前编辑的 C 文件。终端打开时的当前目录就是工作区目录！当 VSCode 打开目录时，这个目录就称为工作区。不仅仅是编译，make、ping、gdb、git，想用什么用什么，就很开心了。
 
-默认情况下 VSCode 唤起的终端是 Poweshell，这可能是因为 WSL 是需要用户安装的，而 Powershell 则是每个 windows10 用户都有的。将内置终端修改为 WSL 的方法是将设置修改成：`"terminal.integrated.shell.windows": "C:\\WINDOWS\\System32\\wsl.exe"`。
+默认情况下 VSCode 唤起的终端是 Poweshell，这可能是因为 WSL 是需要用户安装的，而 Powershell 则是每个 windows10 用户都有的。将内置终端修改为 WSL 的方法有两种，这里推荐前者：
+
+* 唤起终端并在终端选项卡的菜单界面直接选择默认终端；
+* 修改配置文件：`"terminal.integrated.shell.windows": "C:\\WINDOWS\\System32\\wsl.exe"`。
 
 修改设置的方法依然见后文。
 
