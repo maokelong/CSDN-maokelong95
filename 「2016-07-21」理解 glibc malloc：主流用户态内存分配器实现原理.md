@@ -1,7 +1,7 @@
 # Understanding glibc malloc
 
 > **日志**：
->
+> 1. [2019-10-10] 经评论 @kwdecsdn 提醒，新增对「Unsorted Bin 中的 chunks 何时移至 small/large chunk 中」的补充解释。
 > 1. [2019-02-06] 勘误与代码着色优化；
 > 1. [2018-05-22] 内容优化与排版优化；
 > 1. [2017-03-17] 优化排版.
@@ -388,6 +388,8 @@ thread arena 的图示如下（多堆段）：
 
 当 small chunk 和 large chunk 被 `free` 掉时，它们并非被添加到各自的 bin 中，而是被添加在 「**unsorted bin**」 中。这使得分配器可以重新使用最近 `free` 掉的 chunk，从而消除了寻找合适 bin 的时间开销，进而加速了内存分配及释放的效率。
 
+> 译者注：经 @kwdecsdn 提醒，这里应补充说明「Unsorted Bin 中的 chunks 何时移至 small/large chunk 中」。在内存分配的时候，在前后检索 fast/small bins 未果之后，在特定条件下，会将 unsorted bin 中的 chunks 转移到合适的 bin 中去，small/large。
+
  - **数量**：1
   - unsorted bin 包括一个用于保存 free chunk 的双向循环链表（又名 binlist）；
  - **chunk 大小**：无限制，任何大小的 chunk 均可添加到这里。
@@ -399,7 +401,8 @@ thread arena 的图示如下（多堆段）：
 大小小于 512 字节的 chunk 被称为 「**small chunk**」，而保存 small chunks 的 bin 被称为 「**small bin**」。在内存分配回收的速度上，small bin 比 large bin 更快。
 
 - **数量**：62
-  - 每个 small bin 都维护着一条 free chunk 的双向循环链表。`free` 掉的 chunk 添加在链表的顶端，而 `malloc` 的 chunk 从链表尾端摘除。—— FIFO
+  - 每个 small bin 都维护着一条 free chunk 的双向循环链表。采用双向链表的原因是，small bins 中的 chunk 可能会从链表中部摘除。这里新增项放在链表的头部位置，而从链表的尾部位置移除项。—— FIFO
+
 - **chunk 大小**：8 字节递增
   - Small bins 由一系列所维护 chunk 大小以 8 字节递增的 bins 组成。举例而言，`small bin[0]` （Bin 2）维护着大小为 16 字节的 chunks、`small bin[1]`（Bin 3）维护着大小为 24 字节的 chunks ，依此类推……
   - 指定 small bin 中所有 chunk 大小均相同，因此无需排序；
@@ -416,7 +419,7 @@ thread arena 的图示如下（多堆段）：
 大小大于等于 512 字节的 chunk 被称为「**large chunk**」，而保存 large chunks 的 bin 被称为 「**large bin**」。在内存分配回收的速度上，large bin 比 small bin 慢。
 
 - **数量**：63
-  - 每个 large bin 都维护着一条 free chunk 的双向循环链表。`free` 掉的 chunk 添加在链表的顶端，而 `malloc` 的 chunk 从链表尾端摘除。——FIFO
+  - 每个 large bin 都维护着一条 free chunk 的双向循环链表。采用双向链表的原因是，large bins 中的 chunk 可能会从链表中的任意位置插入及删除。
   - 这 63 个 bins
     - 32 个 bins 所维护的 chunk 大小以 64B 递增，也即 `large chunk[0]`(Bin 65) 维护着大小为 512B ~ 568B 的 chunk 、`large chunk[1]`(Bin 66) 维护着大小为 576B ~ 632B 的 chunk，依此类推……
     - 16 个 bins 所维护的 chunk 大小以 512 字节递增；
