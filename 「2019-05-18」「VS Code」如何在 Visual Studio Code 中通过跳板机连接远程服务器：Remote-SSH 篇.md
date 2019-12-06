@@ -39,9 +39,9 @@ VSC 通过 Remote Development 插件连接上远程服务器，然后打开服�
 
 > **注意**： 教程所基于的**本地机器**系 `windows10 1809`。
 
-1. 安装适用于 Windows 10 的 OpenSSH，这里给出两种方案：
-   * （推荐）使用 PowerShell 安装 OpenSSH：
-      * 按下 win 键，输入 powershell，右键选择「以**管理员**身份打开」，分别输入：
+1. 安装适用于 Windows 10 的 OpenSSH，这里给出两种等价的方案：
+   * 使用 PowerShell 安装 OpenSSH：
+      * 使用快捷键 `Windows + X`，接着按 `A` 或点选「Windows PoweShell（管理员）」。分别输入：
         * ` Get-WindowsCapability -Online | ? Name -like 'OpenSSH*'`
           
           这是为了检查 OpenSSH 客户端及服务端是否安装，当均为安装时应打印：
@@ -63,7 +63,7 @@ VSC 通过 Remote Development 插件连接上远程服务器，然后打开服�
           > 通过网络获取，而微软的网络服务质量大家是有目共睹的，所以这里为自己祈祷吧！
 
           ![在这里插入图片描述](https://img-blog.csdnimg.cn/20190518223959776.PNG?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L21hb2tlbG9uZzk1,size_16,color_FFFFFF,t_70)
-   * （不推荐）从设置在 Windows 10 1809 UI 安装 OpenSSH；
+   * 从设置在 Windows 10 1809 UI 安装 OpenSSH；
       * 按下 win 键，点选设置，点选应用，点选管理可选功能，点选添加功能，点选 OpenSSH 客户端。
       
         ![在这里插入图片描述](https://img-blog.csdnimg.cn/20190518224011891.PNG?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L21hb2tlbG9uZzk1,size_16,color_FFFFFF,t_70)
@@ -80,7 +80,7 @@ VSC 通过 Remote Development 插件连接上远程服务器，然后打开服�
    1. 输入 `ssh-keygen -t rsa -b 4096`
   
       按理说，按照上述步骤安装 ssh client 时会顺便安装 `ssh-keygen`。
-   1. 在「资源管理器」中的目录栏输入 `%USERPROFILE%\.ssh\`，进入保存公私钥的目录，其中：
+   1. 在「资源管理器」(快捷键 `Windows + E` )中的目录栏输入 `%USERPROFILE%\.ssh\`，进入保存公私钥的目录，其中：
 
       * id_rsa：私钥，本地机器持有
       * id_rsa.pub：公钥，后面需要改名后上传到服务器上去
