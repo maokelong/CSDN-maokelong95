@@ -261,13 +261,13 @@ sploitfun@sploitfun-VirtualBox:~/ptmalloc.ppt/mthread$
 在以上的例子中我们可以看到，主线程包含 main arena 而 thread 1 包含它自己的 thread arena。所以线程和 arena 之间是否存在一一映射关系，而不论线程的数量有多大？当然不是，部分极端的应用甚至运行比处理器核数还多的线程，在这种情况下，每个线程都拥有一个 arena 开销过高且意义不大。所以，arena 数量其实是限于系统核数的。
 
     For 32 bit systems:
-    Number of arena = 2 * number of cores + 1.
+    Number of arena = 2 * number of cores.
     For 64 bit systems:
-    Number of arena = 8 * number of cores + 1.
+    Number of arena = 8 * number of cores.
   
 ### 3.2. Multiple Arena
 
-举例而言：让我们来看一个运行在单核计算机上的 32 位操作系统上的多线程应用（4 线程，主线程 + 3 个线程）的例子。这里线程数量（4）> 2 * 核心数（1） + 1，所以分配器中至少有一个 Arena（也即标题所称「multiple arenas」）会被所有线程共享。那么是如何共享的呢？
+举例而言：让我们来看一个运行在单核计算机上的 32 位操作系统上的多线程应用（4 线程，主线程 + 3 个线程）的例子。这里线程数量（4）> 2 * 核心数（1），所以分配器中可能有 Arena（也即标题所称「multiple arenas」）会被所有线程共享。那么是如何共享的呢？
 
  - 当主线程第一次调用 `malloc` 时，已经建立的 main arena 会被没有任何竞争地使用；
  - 当 thread 1 和 thread 2 第一次调用 `malloc` 时，一块新的 arena 将被创建，且将被没有任何竞争地使用。此时线程和 arena 之间存在一一映射关系；
