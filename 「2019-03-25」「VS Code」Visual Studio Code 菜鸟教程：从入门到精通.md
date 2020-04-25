@@ -2,6 +2,7 @@
 
 > **日志**：
 >
+> 1. 「2020-04-26」介绍如何配置 LaTeX 环境；
 > 1. 「2019-09-06」更新了选择默认终端的方法；在胶片中补全列选方式；
 > 1. 「2019-05-26」补全了全文的剩余部分，并引入了对 Remote Development 插件的介绍；
 > 1. 「2019-03-25」提交了本文的 PPT 框架。
@@ -209,7 +210,16 @@ VS Live Share，一个下载量接近千万的插件，能允许**实时地**同
 
 ![20](https://img-blog.csdnimg.cn/20190325181726688.PNG?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L21hb2tlbG9uZzk1,size_16,color_FFFFFF,t_70)
 
-LaTeX，可能是最流行的重量级文本标记语言了。对于很多科研工作者来说，LaTeX 可能是第一款让他们去思考，有哪些排版上的细节需要注意的工具。这里不介绍相关特性，也不介绍如何在 VSC 中编写 LaTeX，更多地，这里只是提供一种可能。
+LaTeX，可能是最流行的重量级文本标记语言了。对于很多科研工作者来说，LaTeX 可能是第一款让他们去思考，有哪些排版上的细节需要注意的工具。
+
+这里分享一个在 VSCode 中快速配置 LaTeX 环境的技巧：
+
+1. 通过 Remote-WSL 插件连接 WSL
+1. 安装插件 `LaTeX Workshop`
+1. 唤起终端
+   1. 将源换为清华的（[传送门](https://mirrors.tuna.tsinghua.edu.cn/help/ubuntu/)）
+   1. `sudo apt install texlive-full`
+1. 在插件 `LaTeX Workshop` 中构建项目并预览生成的 PDF
 
 ![21](https://img-blog.csdnimg.cn/20190325181734970.PNG?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L21hb2tlbG9uZzk1,size_16,color_FFFFFF,t_70)
 
