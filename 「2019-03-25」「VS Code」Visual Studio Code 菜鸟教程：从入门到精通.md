@@ -208,7 +208,7 @@ VS Live Share，一个下载量接近千万的插件，能允许**实时地**同
 
 ### 写作
 
-![20](https://img-blog.csdnimg.cn/20190325181726688.PNG?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L21hb2tlbG9uZzk1,size_16,color_FFFFFF,t_70)
+![20](https://img-blog.csdnimg.cn/20200426144318995.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L21hb2tlbG9uZzk1,size_16,color_FFFFFF,t_70)
 
 LaTeX，可能是最流行的重量级文本标记语言了。对于很多科研工作者来说，LaTeX 可能是第一款让他们去思考，有哪些排版上的细节需要注意的工具。
 
