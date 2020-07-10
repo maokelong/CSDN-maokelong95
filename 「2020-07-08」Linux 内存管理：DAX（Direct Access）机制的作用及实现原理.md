@@ -69,7 +69,7 @@ xfs_file_write_iter(
 
 ### 2.2. 映射文件路径如何旁路页缓存
 
-调用 mmap 时，文件系统仅仅在进程的 mm_struct 中注册了一段使用虚拟内存区域（Virtual Memory Area，VMA）描述的虚拟地址。后续当用户态软件首次访问映射文件时，内存管理单元（Memory Managment Unit）发现页表项为空，于是触发 14 号故障，即页故障（Page Fault），使得操作系统开始执行请求调页（Demand Paging）。此时，由虚拟内存管理器（Virtual Memory Manager）和文件系统共同管理页表，以建立虚拟内存到物理内存之间的映射关系。注意，以上为同步过程，而非异步过程，因为页故障是一个异常（Exception）而非软/硬件中断（Software/Hardware Interrupt）。
+调用 mmap 时，文件系统仅仅在进程的 mm_struct 中注册了一段使用虚拟内存区域（Virtual Memory Area，VMA）描述的虚拟地址。后续当用户态软件首次访问映射文件时，内存管理单元（Memory Managment Unit）发现页表项（Page Table Entry,PTE）为空，于是触发 14 号故障，即页故障（Page Fault），使得操作系统开始执行请求调页（Demand Paging）。此时，由虚拟内存管理器（Virtual Memory Manager）和文件系统共同管理页表，以建立虚拟内存到物理内存之间的映射关系。注意，以上为同步过程，而非异步过程，因为页故障是一个异常（Exception）而非软/硬件中断（Software/Hardware Interrupt）。
 
 #### 2.2.1 调用 mmap 时发生了什么
 
@@ -144,18 +144,32 @@ __xfs_filemap_fault(
 	};
 	```
 
-	准备好 struct iomap 之后，通过 [dax_iomap_pfn](https://elixir.bootlin.com/linux/v5.8-rc1/source/fs/dax.c#L985) ，结合 struct iomap 所提供的信息，获取目标 PM 页的物理页号（Physical Page Number，pfn）。之后由 [dax_insert_entry](dax_insert_entry) 将与该页相关联的 DAX Exception Entry 添加到用于维护页缓存的数据结构 XArray 中。最后调用 [vmf_insert_mixed_mkwrite](https://elixir.bootlin.com/linux/v5.8-rc1/source/mm/memory.c#L1976) 将从 DAX Exception Entry 中缓存的 pfn 填写到对应虚拟页的页表项中。
+	准备好 struct iomap 之后，通过 [dax_iomap_pfn](https://elixir.bootlin.com/linux/v5.8-rc1/source/fs/dax.c#L985) ，结合 struct iomap 所提供的信息，获取目标 PM 页的物理页号（Physical Page Number，pfn）。之后由 [dax_insert_entry](dax_insert_entry) 将与该页相关联的 DAX Exception Entry 添加到用于维护页缓存的数据结构 XArray 中。最后调用 [vmf_insert_mixed_mkwrite](https://elixir.bootlin.com/linux/v5.8-rc1/source/mm/memory.c#L1976) 将从 DAX Exception Entry 中缓存的 pfn 填写到对应虚拟页的 PTE 中。
 
 [^multiorder]: Zwisler R. A multi-order radix tree. https://lwn.net/Articles/688130/, 2016
 
 - 正常请求调页
-	该路径主要调用 [filemap_fault](https://elixir.bootlin.com/linux/v5.8-rc1/source/mm/filemap.c#L2459)。该函数首先通过 [do_sync_mmap_readahead](https://elixir.bootlin.com/linux/v5.8-rc1/source/mm/filemap.c#L2459) 试图同步地预读文件数据（预读行为可受 [madvise](https://man7.org/linux/man-pages/man2/madvise.2.html) 系统调用的影响，因此也可能完全不读取），接着通过 [pagecache_get_page](https://elixir.bootlin.com/linux/v5.8-rc1/source/mm/filemap.c#L1600) 分配页缓存，再通过 [xfs_vm_readpage](https://elixir.bootlin.com/linux/v5.8-rc1/source/fs/xfs/xfs_aops.c#L617) 将读取块设备数据的请求发送到块设备层，从而将文件数据读取到页缓存中。在准备将文件数据拷贝到页缓存之后，取决于映射文件的类型（shared、private）再执行不同的分支。
+	该路径主要调用 [filemap_fault](https://elixir.bootlin.com/linux/v5.8-rc1/source/mm/filemap.c#L2459)。该函数首先通过 [do_sync_mmap_readahead](https://elixir.bootlin.com/linux/v5.8-rc1/source/mm/filemap.c#L2459) 试图同步地预读文件数据（预读行为可受 [madvise](https://man7.org/linux/man-pages/man2/madvise.2.html) 系统调用的影响，因此也可能完全不读取），接着通过 [pagecache_get_page](https://elixir.bootlin.com/linux/v5.8-rc1/source/mm/filemap.c#L1600) 分配页缓存，再通过 [xfs_vm_readpage](https://elixir.bootlin.com/linux/v5.8-rc1/source/fs/xfs/xfs_aops.c#L617) 将读取块设备数据的请求发送到块设备层，从而将文件数据读取到页缓存中。在将文件数据拷贝到页缓存之后，取决于映射文件的类型（MAP_SHARED、MAP_PRIVATE）执行不同的分支。最后返回的页保存在 vmf->page 中。
 
-	- 当是 shared，调用 [do_shared_fault](https://elixir.bootlin.com/linux/v5.8-rc1/source/mm/memory.c#L2531)，通过 [xfs_filemap_page_mkwrite](https://elixir.bootlin.com/linux/v5.8-rc1/source/fs/xfs/xfs_file.c#L1247)...
-	- 当是 private，调用 [do_cow_fault](https://elixir.bootlin.com/linux/v5.8-rc1/source/mm/memory.c#L3857)...
+	- 当是 MAP_SHARED，主要调用 [do_shared_fault](https://elixir.bootlin.com/linux/v5.8-rc1/source/mm/memory.c#L3895) 函数，该函数：
+		1. 调用 xfs_file_vm_ops 中注册的 [xfs_filemap_page_mkwrite](https://elixir.bootlin.com/linux/v5.8-rc1/source/fs/xfs/xfs_file.c#L1247)，从而调用 [iomap_page_create](https://elixir.bootlin.com/linux/v5.8-rc1/source/fs/iomap/buffered-io.c#L45) 在 vmf->page 对应的 struct page 的 private 字段中塞进去一个 [struct iomap_page](https://elixir.bootlin.com/linux/v5.8-rc1/source/fs/iomap/buffered-io.c#L28)。
+		
+			```C
+			/*
+			* Structure allocated for each page when block size < PAGE_SIZE to track
+			* sub-page uptodate status and I/O completions.
+			*/
+			struct iomap_page {
+				atomic_t		read_count;
+				atomic_t		write_count;
+				spinlock_t		uptodate_lock;
+				DECLARE_BITMAP(uptodate, PAGE_SIZE / 512);
+			};
+			```
+		1. 调用 [finish_fault](https://elixir.bootlin.com/linux/v5.8-rc1/source/mm/memory.c#L3690)，该函数最终通过 [alloc_set_pte](https://elixir.bootlin.com/linux/v5.8-rc1/source/mm/memory.c#L3627) 将 vmf->page 映射到虚拟页上，为此需要设置 PTE，并设置 Reverse Mapping[^RMAP] 信息以支持空闲页回收。
 
-	> TODO：困了，这部分有空再整理。
-
+		[^RMAP]: McCracken D. Object-based reverse mapping. in: Proceedings of the Ottawa Linux Symposium (OLS’04). Ottawa, Ontario, Canada: July 21–24, 2004. 357~360
+	- 当是 MAP_PRIVATE，调用 [do_cow_fault](https://elixir.bootlin.com/linux/v5.8-rc1/source/mm/memory.c#L3857)。该函数首先通过 [alloc_page_vma](https://elixir.bootlin.com/linux/v5.8-rc1/source/include/linux/gfp.h#L561) 为 VMA 分配一个页，该页保存在 vmf->cow_page 中。接着通过 [copy_user_highpage](https://elixir.bootlin.com/linux/v5.8-rc1/source/include/linux/highmem.h#L319) 将 vmf->page 中的数据拷贝到 vmf->cow_page 中。最后通过 [finish_fault](https://elixir.bootlin.com/linux/v5.8-rc1/source/mm/memory.c#L3690) 将 vmf->cow_page 映射到虚拟页上。
 
 ## 附录 1：术语表
 
