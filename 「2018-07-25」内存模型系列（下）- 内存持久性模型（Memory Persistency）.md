@@ -54,7 +54,25 @@
 ## 1. Terminology
 
 ![21](https://img-blog.csdnimg.cn/20190206230824904.PNG?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L21hb2tlbG9uZzk1,size_16,color_FFFFFF,t_70)
+
+首先，明确内存持久化模型的定义。内存持久化模型是一种内存一致性模型的扩展，其适用于持久化指令。
+
+内存持久化模型规定了持久化指令之间及与 Load/Store 指令之间的顺序，并允许编程者分析持久化指令与系统故障（一般包括 System Crash 及 Power Failure）之间的顺序保障。简而言之，内存持久化模型定义了三种指令/事件之间的顺序约束：
+
+- 持久化指令
+- Load/Store 指令
+- 系统故障
+
 ![22](https://img-blog.csdnimg.cn/20190206230832806.PNG?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L21hb2tlbG9uZzk1,size_16,color_FFFFFF,t_70)
+
+接着，继续定义本文提到的其余名词。感兴趣，或者希望自行阅读原文的话，可以了解一下。
+
+- Store：缓存一致性行为，应使得写操作（包括对持久内存的写）对其余处理器可见；
+- Persist：将数据永久地保存到持久内存的行为；
+- Persist Atomicity：持久化到每个地址的行为被序列化，这意味着
+  > **Note**: Persist Atomicity 这一概念类似于 Store Atomicity，后者表示
+- Recovey Observer：一个虚拟的处理器，能够
+  > **Note**: 
 
 ## 2. Strict Persistency
 
