@@ -1,0 +1,222 @@
+
+# 【C语言进阶】结构体与联合
+@[toc]
+> 本文内容整理自 ISO/IEC 9899:2017
+
+> 2021-3-21：完成初稿。
+
+## 1. 说明符
+
+### 1.1. 说明符 - 定义
+
+下面的语法定义不做过多介绍，因为这些东西介绍起来价值很低——懂的不需要介绍，需要介绍的完全可以找到更适合、更成熟的教程。
+
+```
+struct-or-union-specifier:
+    struct-or-union identifier[opt] { struct-declaration-list }
+    struct-or-union identifier
+struct-or-union:
+    struct
+    union
+struct-declaration-list:
+    struct-declaration
+    struct-declaration-list struct-declaration
+struct-declaration:
+    specifier-qualifier-list struct-declarator-list[opt] ;
+    static_assert-declaration
+specifier-qualifier-list:
+    type-specifier specifier-qualifier-list[opt]
+    type-qualifier specifier-qualifier-list[opt]
+    alignment-specifier specifier-qualifier-list[opt]
+struct-declarator-list:
+    struct-declarator
+    struct-declarator-list , struct-declarator
+struct-declarator:
+    declarator
+    declarator[opt] : constant-expression
+```
+
+### 1.2. 说明符 - 高级用法
+
+这里介绍一些结构体 / 联合的高级用法，相信大家应该都已经用得挺熟练的了。这里定义并介绍这些用法，好让大家交流的时候看起来更专业一点。
+
+#### 1.2.1. 匿名结构体及联合（anonymous structure/union）
+一个未指定结构体/联合名、也未命名自身的结构体/联合成员，即为匿名结构体/联合。匿名结构体/联合中的成员可在保持其原本布局的同时，被视作包含该匿名结构体/联合的结构体/联合的成员。
+
+```c
+struct v {
+    union { // anonymous union
+        struct { int i, j; }; // anonymous structure
+        struct { long k, l; } w;
+        struct z { char x, y; }; // invalid: declaration does not declare anything
+    };
+    int m;
+} v1;
+
+v1.i = 2;   // valid
+v1.k = 3;   // invalid: inner structure is not anonymous
+v1.w.k = 5; // valid
+```
+具名结构体 v 中存在匿名联合，该匿名联合中同时存在两个结构体，其中一个指定了声明符 w。如上例所示，可直接访问匿名结构体中的字段，但是却必须通过声明符访问具名成员中的字段。
+
+#### 1.2.2. 柔性数组成员（flexible array member）
+
+起码拥有一个具名成员的结构体，其末尾的成员可拥有不完全数组类型（incomplete type），也就是说它的大小可以是不确定的，这种成员就是柔性数组成员。
+
+> **NOTE1**：柔性数组成员不占用任何内存，但可能导致结构体尾部填充额外 padding。填充的结果为：结构体的大小看起来就像柔性数组成员中每一项（基本类型）的整数倍。
+> **NOTE2**：更多有关上述 padding 的例子，可以参考 《ISO/IEC 9899:2017》§ 6.7.2.1
+
+比如声明了下述结构体 s:
+
+```c
+struct s { int n; double d[]; };
+```
+
+`struct s` 中有一个柔性数组成员 d，此时通常这样使用 s:
+
+```c
+int m = /* some value */;
+struct s *p = malloc(sizeof (*p) + sizeof (double [m]));
+```
+
+上面这个结构体和使用方式，看起来就像等价于下面这个表达式一样，除了 d 的偏移可能并不一致：
+
+```c
+struct { int n; double d[m]; } *p;
+```
+
+#### 1.2.3. 仅包含匿名结构体/联合和柔性数组成员的结构体
+
+匿名结构体、联合中的成员可直接视作被包含的结构体、联合中的成员，因此，下述结构体 `s` 可视为拥有一个具名成员的结构体，其末尾成员，`a`，自然可定义为柔性数组成员。
+
+```c
+struct s {
+    struct { int i; };
+    int a[];
+};
+```
+
+## 2. 初始化
+
+### 2.1. 初始化 - 定义
+
+同样的，语法定义不做过多介绍。这看起来会有些复杂，但只是一些递归的逻辑。
+
+```
+initializer:
+    assignment-expression
+    { initializer-list }
+    { initializer-list , }
+initializer-list:
+    designation[opt] initializer
+    initializer-list , designation[opt] initializer
+designation:
+    designator-list =
+designator-list:
+    designator
+    designator-list designator
+designator:
+    [ constant-expression ]
+    . identifier
+```
+
+### 2.2. 初始化 - 一些零碎的知识点
+
+#### 2.2.1. 结构体的匿名成员，其值在结构体初始化之后是不确定的
+
+
+#### 2.2.2. 未指定指派符时，初始化列表将按顺序初始化结构体/联合
+
+```c
+struct s {int a[3]; int b; union {int c1; char c2;};};
+
+struct s s1 = {{1}, 2, 3}; // 依次初始化 s.a[0], s.b, s.c1
+struct s s2 = {.b = 2, .a = {1}, 3}; // 依次初始化 s.b, s.a[0], s.c1
+```
+
+### 2.2.3. 初始化列表中表达式的计算顺序未作约束，因此尽量避免从中使用可能产生边际效应的做法
+
+表达式的计算顺序可能并不等于成员的初始化顺序，不要作出任何假设！
+
+```c
+struct s s1 = {{a += 1}, b = a, a++}; // 不要这样玩
+```
+
+### 2.3. 初始化 - 关于自动填零的坑
+
+#### 2.3.1. 拥有自动存储周期（Storage Duration）的对象，若未显式初始化，则其值是不确定的；反之，拥有静态或线程存储周期的对象将被置零
+
+```c
+struct s {int f;};
+
+struct s s1;               // 静态存储周期，s1.f == 0 
+static struct s s2;        // 静态存储周期，s2.f == 0 
+extern struct s s3;        // 静态存储周期，s3.f == 0 
+_Thread_local struct s s4; // 线程存储周期，s4.f == 0 (c11)
+
+{
+    struct s s5;           // 自动存储周期，s5.f == ?
+}
+
+```
+### 2.3.2. 若初始化列表中项的个数少于结构体/联合/数组中项的总数，或给定字符串的字符数少于数组总大小，则其余项被隐式地填为零
+
+- eg1
+    ```c
+    struct { int a[3], b; } w[] = { { 1 }, 2 };
+    ```
+
+    上述表达式将会把 w[0].a[0] 初始化为 1，把 w[1].a[0] 初始化为 2，而其余元素将默认填为 0。
+
+- eg2
+    ```c
+    struct T {
+        int k;
+        int l;
+    };
+
+    struct S {
+        int i;
+            struct T t;
+    };
+
+    struct T x = {.l = 43, .k = 42, };
+
+    void f(void)
+    {
+        struct S l = { 1, .t = x, .t.l = 41, };
+    }
+    ```
+
+    注意 l.t.k d 的值是 42，因为隐式初始化无法覆盖显示初始化。
+- eg3
+    ```c
+    union u
+    {
+        uint32_t output;
+        struct
+        {
+            uint32_t aa : 31;
+            uint32_t ac : 1;
+        };
+        struct
+        {
+            uint32_t ba : 16;
+            uint32_t bb : 15;
+            uint32_t bc : 1;
+        };
+        struct
+        {
+            uint32_t __low_bits_holder : 31;
+            uint32_t cc : 1;
+        };
+    };
+
+    union u u = {
+        .aa = 1,
+        .cc = 1,
+    };
+    ```
+
+    u.output == 0x80000000，而不是 0x80000001。
+
