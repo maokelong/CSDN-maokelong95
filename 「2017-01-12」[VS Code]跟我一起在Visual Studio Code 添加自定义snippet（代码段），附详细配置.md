@@ -1,8 +1,10 @@
 
 
+
 # Add code snippets for CLANG in VS Code
 
 > **日志**：
+> 1. 2021.12.16 VSCode 自 v1.40 起，引入新的变量「WORKSPACE_FOLDER」、「RANDOM」和「RANDOM_HEX」；自 v1.49 起，「TM_SELECTED_TEXT」能够对已覆盖文本生效；自 v1.53 起，引入了新的变量「UUID」和「RELATIVE_FILEPATH」；自 v1.57 起，提示预览功能；自 v1.58 起，变量转换中支持直接转换为驼峰命名；
 > 1. 2019.09.06 VSCode 自 v1.38 起，引入了新的变量「CURRENT_SECONDS_UNIX」；自 v1.33 起，引入了新的变量「WORKSPACE_NAME」。本次更新即旨于介绍这些新变量，同时评论显示，很多朋友都困惑于如何打印特殊字符如「$」，本次同时加入对这部分的介绍；
 > 1. 2019.01.19 VSCode 自 v1.30 起，开始支持注释变量（comment variables），这些变量会随着当前语言而进行适应；自 v1.28 起，开始支持工作目录专属代码片（Project level snippets）及多前缀（multiple prefixes）特性。本次更新即旨于介绍这些新特性。另外笔者觉得中英文混杂的排版很扎眼睛，所以移除了大量中英文混杂的语句；
 > 1. 2018.07.16 VSCode 自 v1.25 起，开始支持占位符转换（placeholder transformations）了，其用于在进行占位符跳转时（1→2）对当前占位符（1）适用正则替换。新特性听起来和变量转换很像，它们的区别在于占位符转换适用于占位符，而变量转换适用于变量。前者更灵活，后者更省心。本次更新即旨于介绍这个新特性，并再次对排版进行适应性调整；
@@ -19,7 +21,7 @@
 
 ---
 
-[toc]
+@[toc]
 既然你点开了这个页面，那就说明要么你不知道 VSCode 上已有拓展「C/C++ Snippets」，要么你对这个拓展不甚满意。对于后者，本文将为你介绍如何在 VSCode 上设置 snippets，并为你提供一套可以直接用的 C 语言 snippets。
 
 ## 1. 代码片简介
@@ -29,6 +31,11 @@ snippet[ˈsnɪpɪt]，或者说「code snippet」，也即**代码片**，指的
 当然，看图更易懂。下图将 `aja` 补全为 JQuery 的 ajax() 方法，并通过光标的跳转，快速补全了待填键值对：
 
 ![这里写图片描述](https://img-blog.csdn.net/20171011222545141?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvbWFva2Vsb25nOTU=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)
+
+自 1.57 版本开始，vscode 引入提示预览功能，再也不同担心混淆关键字和代码片段了。
+
+![在这里插入图片描述](https://img-blog.csdnimg.cn/f92cfb0fe698445aaeaa6ce9664c3fca.gif#pic_center)
+
 
 ## 2. 代码片配置流程
 
@@ -131,7 +138,7 @@ Body 部分可以使用特殊语法结构，来控制光标和要插入的文本
     使用`$name`或`${name:default}`可以插入变量的值。当变量未赋值时（如），将插入其缺省值或空字符串。 当`varibale`未知（即，其名称未定义）时，将插入变量的名称，并将其转换为「Placeholder」。可以使用的「Variable」如下：
 
     - `TM_SELECTED_TEXT`：当前选定的文本或空字符串；
-      注：选定后通过在命令窗口点选「插入代码片段」插入。
+      > 注：v1.49 起，直接输入代码片段前缀并补全，即可对选中文本适用代码片段，见 [RP105440](https://github.com/microsoft/vscode/pull/105440)。
     - `TM_CURRENT_LINE`：当前行的内容；
     - `TM_CURRENT_WORD`：光标所处单词或空字符串
        注：所谓光标一般为文本输入处那条闪来闪去的竖线，该项可定制。单词使用 VSCode 选词（Word Wrap）器选择。你最好只用它选择英文单词，因为这个选择器明显没有针对宽字符优化过，它甚至无法识别宽字符的标点符号。
@@ -141,10 +148,12 @@ Body 部分可以使用特殊语法结构，来控制光标和要插入的文本
     - `TM_FILENAME_BASE`：当前文档的文件名（不含后缀名）；
     - `TM_DIRECTORY`：当前文档所在目录；
     - `TM_FILEPATH`：当前文档的完整文件路径；
+    - `RELATIVE_FILEPATH`：当前文档的相对路径（相对于当前工作目录）；
+    - `CLIPBOARD`：当前剪贴板中内容；
     - `WORKSPACE_NAME`：当前工作目录的名称（而非完整路径）；
-    - `CLIPBOARD`：当前剪贴板中内容。
+    - `WORKSPACE_FOLDER`：当前工作目录的路径。
 
-    此外，还有一些用于插入当前时间的变量，这里单独列出：
+    还有一些用于插入当前时间的变量，这里单独列出：
     
     - `CURRENT_YEAR`: 当前年份；
     - `CURRENT_YEAR_SHORT`: 当前年份的后两位；
@@ -159,7 +168,15 @@ Body 部分可以使用特殊语法结构，来控制光标和要插入的文本
     - `CURRENT_SECOND`: 当前秒数；
     - `CURRENT_SECONDS_UNIX`：Unix 时间戳。
 
-    此外，还有一些用于插入行/块注释的变量，其将根据当前文件的语言模式自动调整：
+    还有一些用于插入随机值的变量：
+
+    - `RANDOM` 6个随机十进制数
+    - `RANDOM_HEX` 6个随机十六进制数（小写）
+    
+      > 注：希望生成大写可用 `${RANDOM_HEX/(.*)/${1:/upcase}/}`。具体原理见后续「变量转换」章节。
+    - `UUID` 生成 UUIDv4
+
+    还有一些用于插入行/块注释的变量，其将根据当前文件的语言模式自动调整：
 
     - `BLOCK_COMMENT_START` 块注释上半段，输出示例: 
        - PHP: `/*`
@@ -198,7 +215,7 @@ Body 部分可以使用特殊语法结构，来控制光标和要插入的文本
 - `format`：格式串，分为 7 种：
   - `$sn`：表示插入匹配项；
   - `${sn}`：同 `$sn`；
-  - `${sn:/upcase}` 或 `${sn:/downcase}` 或 `${sn:/capitalize}`：表示将匹配项变更为「所有字母均大写/所有字母均小写/首字母大写其余小写」后，插入；
+  - `${sn:/upcase}` 或 `${sn:/downcase}` 或 `${sn:/capitalize}` 或 `${sn:/pascalcase}`  或 `${sn:/camelcase}`：表示将匹配项变更为「所有字母均大写/所有字母均小写/首字母大写其余小写/大驼峰/小驼峰」后，插入；
   - `${sn:+if}`：表示当匹配成功时，并且捕捉括号捕捉特定序号的捕捉项成功时，在捕捉项位置插入「if」所述语句；
   - `${sn:?if:else}`：表示当匹配成功，并且捕捉括号捕捉特定序号的捕捉项成功时，在捕捉项位置插入「if」所述语句；否则当匹配成功，但当捕捉括号捕捉特定序号的捕捉项失败时，在捕捉项位置插入「else」所述语句；
   - `${sn:-else}`：表示当匹配成功，但当捕捉括号捕捉特定序号的捕捉项失败时，在捕捉项位置插入「else」所述语句；
@@ -280,7 +297,7 @@ variable    ::= '$' var | '${' var '}'
                 | '${' var transform '}'
 transform   ::= '/' regex '/' (format | text)+ '/' options
 format      ::= '$' int | '${' int '}'
-                | '${' int ':' '/upcase' | '/downcase' | '/capitalize' '}'
+                | '${' int ':' '/upcase' | '/downcase' | '/capitalize' | '/camelcase' | '/pascalcase' '}'
                 | '${' int ':+' if '}'
                 | '${' int ':?' if ':' else '}'
                 | '${' int ':-' else '}' | '${' int ':' else '}'
@@ -464,3 +481,4 @@ text        ::= .*
 [^atom]:https://github.com/atom/language-c/blob/master/snippets/language-c.cson
 
 [^jsexp]:https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/RegExp
+1
