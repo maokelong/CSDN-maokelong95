@@ -139,7 +139,7 @@ sploitfun@sploitfun-VirtualBox:~/ptmalloc.ppt/mthread$
 
 >**注意**：top chunk 是一个 arena 位于最顶层的 chunk。有关 top chunk 的更多信息详见后续章节「top chunk」部分。
 
-```text
+<pre>
 sploitfun@sploitfun-VirtualBox:~/ptmalloc.ppt/mthread$ ./mthread 
 Welcome to per thread arena example::6501
 Before malloc in main thread
@@ -149,17 +149,17 @@ sploitfun@sploitfun-VirtualBox:~/lsploits/hof/ptmalloc.ppt/mthread$ cat /proc/65
 08048000-08049000 r-xp 00000000 08:01 539625     /home/sploitfun/ptmalloc.ppt/mthread/mthread
 08049000-0804a000 r--p 00000000 08:01 539625     /home/sploitfun/ptmalloc.ppt/mthread/mthread
 0804a000-0804b000 rw-p 00001000 08:01 539625     /home/sploitfun/ptmalloc.ppt/mthread/mthread
-0804b000-0806c000 rw-p 00000000 00:00 0          [heap]
+<b>0804b000-0806c000 rw-p 00000000 00:00 0          [heap]</b>
 b7e05000-b7e07000 rw-p 00000000 00:00 0 
 ...
 sploitfun@sploitfun-VirtualBox:~/ptmalloc.ppt/mthread$
-```
+</pre>
 
 #### 2.2.3. 在主线程 free 之后
 
 从如下的输出结果中我们可以看到，当分配的内存区域 `free` 掉时，其并不会立即归还给操作系统，而仅仅是移交给了作为库函数的分配器。这块 `free` 掉的内存添加在了「main arenas bin」中（在 glibc malloc 中，空闲列表数据结构被称为「**bin**」）。随后当用户请求内存时，分配器就不再向内核申请新堆了，而是先试着各个「bin」中查找空闲内存。只有当 bin 中不存在空闲内存时，分配器才会继续向内核申请内存。
 
-```text
+<pre>
 sploitfun@sploitfun-VirtualBox:~/ptmalloc.ppt/mthread$ ./mthread 
 Welcome to per thread arena example::6501
 Before malloc in main thread
@@ -170,17 +170,17 @@ sploitfun@sploitfun-VirtualBox:~/lsploits/hof/ptmalloc.ppt/mthread$ cat /proc/65
 08048000-08049000 r-xp 00000000 08:01 539625     /home/sploitfun/ptmalloc.ppt/mthread/mthread
 08049000-0804a000 r--p 00000000 08:01 539625     /home/sploitfun/ptmalloc.ppt/mthread/mthread
 0804a000-0804b000 rw-p 00001000 08:01 539625     /home/sploitfun/ptmalloc.ppt/mthread/mthread
-0804b000-0806c000 rw-p 00000000 00:00 0          [heap]
+<b>0804b000-0806c000 rw-p 00000000 00:00 0          [heap]</b>
 b7e05000-b7e07000 rw-p 00000000 00:00 0 
 ...
 sploitfun@sploitfun-VirtualBox:~/ptmalloc.ppt/mthread$
-```
+</pre>
 
 #### 2.2.4. 在 thread1 malloc 之前
 
 从如下的输出结果中我们可以看到，此时 thread1 的堆尚不存在，但其栈已产生。
 
-```text
+<pre>
 sploitfun@sploitfun-VirtualBox:~/ptmalloc.ppt/mthread$ ./mthread 
 Welcome to per thread arena example::6501
 Before malloc in main thread
@@ -194,10 +194,10 @@ sploitfun@sploitfun-VirtualBox:~/ptmalloc.ppt/mthread$ cat /proc/6501/maps
 0804a000-0804b000 rw-p 00001000 08:01 539625     /home/sploitfun/ptmalloc.ppt/mthread/mthread
 0804b000-0806c000 rw-p 00000000 00:00 0          [heap]
 b7604000-b7605000 ---p 00000000 00:00 0 
-b7605000-b7e07000 rw-p 00000000 00:00 0          [stack:6594]
+<b>b7605000-b7e07000 rw-p 00000000 00:00 0          [stack:6594]</b>
 ...
 sploitfun@sploitfun-VirtualBox:~/ptmalloc.ppt/mthread$
-```
+</pre>
 
 #### 2.2.5. 在 thread1 malloc 之后
 
@@ -205,7 +205,7 @@ sploitfun@sploitfun-VirtualBox:~/ptmalloc.ppt/mthread$
 
 >**注意**：当用户请求超过 128KB(比如 `malloc(132*1024)`) 大小并且此时 arena 中没有足够的空间来满足用户的请求时，内存将通过 `mmap` 系统调用（不再是 `sbrk`）分配，而不论请求是发自 main arena 还是 thread arena。
 
-```text
+<pre>
 ploitfun@sploitfun-VirtualBox:~/ptmalloc.ppt/mthread$ ./mthread 
 Welcome to per thread arena example::6501
 Before malloc in main thread
@@ -219,19 +219,19 @@ sploitfun@sploitfun-VirtualBox:~/ptmalloc.ppt/mthread$ cat /proc/6501/maps
 08049000-0804a000 r--p 00000000 08:01 539625     /home/sploitfun/ptmalloc.ppt/mthread/mthread
 0804a000-0804b000 rw-p 00001000 08:01 539625     /home/sploitfun/ptmalloc.ppt/mthread/mthread
 0804b000-0806c000 rw-p 00000000 00:00 0          [heap]
-b7500000-b7521000 rw-p 00000000 00:00 0 
-b7521000-b7600000 ---p 00000000 00:00 0 
+<b>b7500000-b7521000 rw-p 00000000 00:00 0 
+b7521000-b7600000 ---p 00000000 00:00 0 </b>
 b7604000-b7605000 ---p 00000000 00:00 0 
 b7605000-b7e07000 rw-p 00000000 00:00 0          [stack:6594]
 ...
 sploitfun@sploitfun-VirtualBox:~/ptmalloc.ppt/mthread$
-```
+</pre>
 
 #### 2.2.6. 在 thread1 free 之后
 
 从如下的输出结果中我们可以看到，`free` 不会把内存归还给操作系统，而是移交给分配器，然后添加在了「thread arenas bin」中。
 
-```text
+<pre>
 sploitfun@sploitfun-VirtualBox:~/ptmalloc.ppt/mthread$ ./mthread 
 Welcome to per thread arena example::6501
 Before malloc in main thread
@@ -246,13 +246,13 @@ sploitfun@sploitfun-VirtualBox:~/ptmalloc.ppt/mthread$ cat /proc/6501/maps
 08049000-0804a000 r--p 00000000 08:01 539625     /home/sploitfun/ptmalloc.ppt/mthread/mthread
 0804a000-0804b000 rw-p 00001000 08:01 539625     /home/sploitfun/ptmalloc.ppt/mthread/mthread
 0804b000-0806c000 rw-p 00000000 00:00 0          [heap]
-b7500000-b7521000 rw-p 00000000 00:00 0 
+<b>b7500000-b7521000 rw-p 00000000 00:00 0</b> 
 b7521000-b7600000 ---p 00000000 00:00 0 
 b7604000-b7605000 ---p 00000000 00:00 0 
 b7605000-b7e07000 rw-p 00000000 00:00 0          [stack:6594]
 ...
 sploitfun@sploitfun-VirtualBox:~/ptmalloc.ppt/mthread$
-```
+</pre>
 
 ## 3. Arena
 
