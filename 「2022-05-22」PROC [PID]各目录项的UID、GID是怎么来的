@@ -1,0 +1,139 @@
+# /PROC/[PID]各目录项的UID、GID是怎么来的
+@[toc]
+最近遇到一个好玩的现象：`/proc/[pid]` 下各目录有的跟随父目录UID，而有些则是ROOT。这个行为在不同操作系统上表现不一致。
+
+![在这里插入图片描述](https://img-blog.csdnimg.cn/7a62a39009464fdcbaf0dee73271c1c2.png)
+
+
+经过一系列研究，发现 `/proc/[pid]` 目录及其各目录项在满足如下条件时跟随相应进程，否则采用默认值 `ROOT`：
+- **对于任意情况**：`/proc/sys/fs/suid_dumpable` 设置为 `1`。设置后重启进程方生效。
+- **对于加载可执行文件的情况**：当前进程具有读取该镜像的权限，且其 UID 与 SUID 一致、GID 与 SGUID 一致
+- **对于父进程 FORK 的情况**： 若父进程满足上述条件，则子进程继承父进程，同样满足
+
+本文后续部分基于 Linux v5.17 内核，展开上述结论的推导过程。注意，
+
+## 第一层：伪文件系统
+从根文件系统到 `/proc` 这一层暂且不表。
+
+聚焦目标，首先看 `/proc/[pid]` 及其各目录项 `/proc/[pid]/pident` 的 UID 和 GID 如何设置。
+
+### inode_operation
+
+根据经验，首先找到 '/proc' 这一目录的 inode_operation `proc_root_inode_operations` （[链接](https://elixir.bootlin.com/linux/v5.17/source/fs/proc/root.c#L354)），及 '/proc/[pid]' 的 inode_operation `proc_tgid_base_inode_operations`（[链接](https://elixir.bootlin.com/linux/v5.17/source/fs/proc/base.c#L3318)）。二者有关设置 UID 的流程上没有差异。
+
+### .getattr
+可以看到，stat 时用于生成 `struct kstat` 的 `.getattr` 方法本质只是对 `generic_fillattr` 的简单封装，本质上讲，还是要看 inode 中的相关字段。
+
+所以我们将目光转向 `.lookup` 方法。
+
+### .lookup
+
+众所周知，VFS inode_operations 的 '.lookup' 用于生成 `struct inode` 并将之与 VFS 层生成的 `struct dentry` 绑定。顺着 lookup 追踪，很快就发现了设置 UID 及 GID 的位置 `task_dump_owner` 。
+
+现摘录其中四段核心逻辑：
+
+```c
+// 第一段
+if (unlikely(task->flags & PF_KTHREAD)) {
+	*ruid = GLOBAL_ROOT_UID;
+	*rgid = GLOBAL_ROOT_GID;
+	return;
+}
+...
+
+// 第二段
+cred = __task_cred(task);
+uid = cred->euid;
+gid = cred->egid;
+...
+
+// 第三段
+...
+
+// 第四段
+*ruid = uid;
+*rgid = gid;
+```
+- **第一段说明**：对于内核进程，`inode->i_uid` 赋予 ROOT，这个没什么好说的
+- **第二、四段说明**：在没有意外的情况下，`/proc/[内核线程]` 赋予 euid
+
+第三段就是上面提到的意外了，下面我们特地展开分析：
+
+```c
+if (mode != (S_IFDIR|S_IRUGO|S_IXUGO)) {
+	struct mm_struct *mm;
+	task_lock(task);
+	mm = task->mm;
+	if (mm) {
+	    // 第三段
+		if (get_dumpable(mm) != SUID_DUMP_USER) {
+			struct user_namespace *user_ns = mm->user_ns;
+
+			uid = make_kuid(user_ns, 0);
+			if (!uid_valid(uid))
+				uid = GLOBAL_ROOT_UID;
+
+			gid = make_kgid(user_ns, 0);
+			if (!gid_valid(gid))
+				gid = GLOBAL_ROOT_GID;
+		}
+	} else {
+		uid = GLOBAL_ROOT_UID;
+		gid = GLOBAL_ROOT_GID;
+	}
+	task_unlock(task);
+}
+```
+
+显然，同时满足如下条件被设置为 ROOT
+- **该目录项不得是目录**：不论如何，进程至少拥有遍历自己 PROC 目录及其子目录的权利。但至于文件内容能不能 DUMP 就另说了。
+- **该进程不得是核态进程**
+- **该进程必须为 dumpable** ：展开起来有些篇幅，我们单独用一个章节展开。
+
+## 第二层：进程的dumpable属性
+### 物理上对应哪个字段
+```c
+// https://elixir.bootlin.com/linux/v5.17/source/include/linux/sched/coredump.h#L29
+static inline int __get_dumpable(unsigned long mm_flags)
+{
+	return mm_flags & MMF_DUMPABLE_MASK;
+}
+
+static inline int get_dumpable(struct mm_struct *mm)
+{
+	return __get_dumpable(mm->flags);
+}
+```
+
+### 这个字段什么时候更新
+
+1. **加载可执行镜像时设置**（[链接](https://elixir.bootlin.com/linux/v5.17/source/fs/exec.c#L1351)）
+	```c
+	if (bprm->interp_flags & BINPRM_FLAGS_ENFORCE_NONDUMP ||
+	    !(uid_eq(current_euid(), current_uid()) &&
+	      gid_eq(current_egid(), current_gid())))
+		set_dumpable(current->mm, suid_dumpable);
+	else
+		set_dumpable(current->mm, SUID_DUMP_USER);
+	```
+	当镜像文件不可读，或 EUID 和 UID 不匹配时，直接使用全局变量 `suid_dumpable`。该全局变量可通过 `/proc/sys/fs/suid_dumpable` 维护。
+2. **刷新进程 CRED 结构体时**
+    根据第一条，不难得到本条
+3. **通过 prctl 系统调用强行刷新**（[链接](https://elixir.bootlin.com/linux/v5.17/source/kernel/sys.c#L2368)）
+	比如安卓的 Zygote 中的如下代码片段（[链接](https://android.googlesource.com/platform/frameworks/base/+/master/core/jni/com_android_internal_os_Zygote.cpp#599)）：
+	```c
+	if (prctl(PR_SET_DUMPABLE, 1, 0, 0, 0) == -1) {
+	  ALOGE("prctl(PR_SET_DUMPABLE) failed");
+	}
+	```
+4. **当进程通过 FORK 产生时**（[链接](https://elixir.bootlin.com/linux/v5.17/source/kernel/fork.c#L1068)）
+	```c
+	if (current->mm) {
+		mm->flags = current->mm->flags & MMF_INIT_MASK;
+		mm->def_flags = current->mm->def_flags & VM_INIT_DEF_MASK;
+	} else {
+		mm->flags = default_dump_filter;
+		mm->def_flags = 0;
+	}
+	```
+	对于初始进程，不可 DUMP；对于子进程，继承父进程 dumpable 属性。
